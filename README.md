@@ -32,6 +32,29 @@ win 파라미터의 경우 3 혹은 4에서 가장 좋은 성능을 보이며 �
 pip install cmake dlib opencv-python face_recognition numpy 
 ```
 
+#  Minimum UI
+
+1. 빌드를 위해 필요한 것들
+* PyQT5
+* Python 3. over
+2. Code preview
+```python
+layout = QtWidgets.QVBoxLayout()
+
+        layout.addWidget(self.face_detection_widget)
+        self.run_button = QtWidgets.QPushButton('Start')
+        layout.addWidget(self.run_button)
+        self.btn = QPushButton("NSFW")
+        layout.addWidget(self.btn)
+        self.le = QLabel("")
+        
+        layout.addWidget(self.le)
+        self.btn.clicked.connect(self.getfile)
+        self.run_button.clicked.connect(self.record_video.start_recording)
+        self.setLayout(layout)
+```
+* start button 은 모자이크 처리를 시작을 뜻함
+* NSFW button 은 이미지를 받아와서 NSFW 필터링을 
 
 
 Contributing
