@@ -28,7 +28,10 @@ win 파라미터의 경우 3 혹은 4에서 가장 좋은 성능을 보이며 �
 
 빌드 및 설치
 ----
-khaiii의 빌드 및 설치에 관해서는 [빌드 및 설치 문서](https://github.com/kakao/khaiii/wiki/%EB%B9%8C%EB%93%9C-%EB%B0%8F-%EC%84%A4%EC%B9%98)를 참고하시기 바랍니다.
+```console
+pip install cmake dlib opencv-python face_recognition numpy 
+```
+
 
 
 Contributing
