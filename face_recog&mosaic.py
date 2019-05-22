@@ -2,12 +2,15 @@ import cv2
 import dlib
 import threading
 import time
+import os
+import face_recognition
+import numpy as np
 
 #Initialize a face cascade using the frontal face haar cascade provided with
 #the OpenCV library
 #Make sure that you copy this file from the opencv project to the root of this
 #project folder
-faceCascade = cv2.CascadeClassifier('../xmls/haarcascade_frontalface_default.xml')
+# faceCascade = cv2.CascadeClassifier('xmls/haarcascade_frontalface_default.xml')
 
 #The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
@@ -15,6 +18,25 @@ OUTPUT_SIZE_HEIGHT = 600
 MOSAIC_RATE = 10
 BASE_SIZE_WIDTH = 320
 BASE_SIZE_HEIGHT = 240
+
+known_face_encodings = []
+known_face_names = []
+faces_locations = []
+face_encodings = []
+face_names = {}
+process_this_frame = True
+
+# Load sample pictures and learn how to recognize it.
+dirname = 'face_recog&track/knowns'
+files = os.listdir(dirname)
+for filename in files:
+    name, ext = os.path.splitext(filename)
+    if ext == '.jpg':
+        known_face_names.append(name)
+        pathname = os.path.join(dirname, filename)
+        img = face_recognition.load_image_file(pathname)
+        face_encoding = face_recognition.face_encodings(img)[0]
+        known_face_encodings.append(face_encoding)
 
 
 #We are not doing really face recognition
@@ -85,7 +107,6 @@ def detectAndTrackMultipleFaces():
             frameCounter += 1 
 
 
-
             #Update all the trackers and remove the ones for which the update
             #indicated the quality was not good enough
             fidsToDelete = []
@@ -105,15 +126,19 @@ def detectAndTrackMultipleFaces():
             #are present in the frame
             if (frameCounter % 10) == 0:
 
-
-
                 #For the face detection, we need to make use of a gray
                 #colored image so we will convert the baseImage to a
                 #gray-based image
-                gray = cv2.cvtColor(baseImage, cv2.COLOR_BGR2GRAY)
+                # gray = cv2.cvtColor(baseImage, cv2.COLOR_BGR2GRAY)
                 #Now use the haar cascade detector to find all faces
                 #in the image
-                faces = faceCascade.detectMultiScale(gray, 1.3, 5)
+                # faces = faceCascade.detectMultiScale(gray, 1.3, 5)
+
+                faces = face_recognition.face_locations(baseImage)
+                face_encodings = face_recognition.face_encodings(baseImage, faces)
+
+                # print(face_encodings)
+
 
                 #Loop over all faces and check if the area for this
                 #face is the largest so far
@@ -121,11 +146,11 @@ def detectAndTrackMultipleFaces():
                 #requirement of the dlib tracker. If we omit the cast to
                 #int here, you will get cast errors since the detector
                 #returns numpy.int32 and the tracker requires an int
-                for (_x,_y,_w,_h) in faces:
-                    x = int(_x)
-                    y = int(_y)
-                    w = int(_w)
-                    h = int(_h)
+                for (top, right, bottom, left), face_encoding in zip(faces, face_encodings):
+                    x = int(left)
+                    y = int(top)
+                    w = int(right - left)
+                    h = int(bottom - top)
 
 
                     #calculate the centerpoint
@@ -181,6 +206,20 @@ def detectAndTrackMultipleFaces():
 
                         faceTrackers[ currentFaceID ] = tracker
 
+                        distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                        min_value = min(distances)
+
+                        # tolerance: How much distance between faces to consider it a match. Lower is more strict.
+                        # 0.6 is typical best performance.
+                        name = "Unknown"
+                        if min_value < 0.4:
+                            index = np.argmin(distances)
+                            name = known_face_names[index]
+
+                        face_names[ currentFaceID ] = name
+
+                        print(face_names)
+
                         #Start a new thread that is used to simulate 
                         #face recognition. This is not yet implemented in this
                         #version :)
@@ -190,9 +229,6 @@ def detectAndTrackMultipleFaces():
 
                         #Increase the currentFaceID counter
                         currentFaceID += 1
-
-
-
 
             #Now loop over all the trackers we have and draw the rectangle
             #around the detected faces. If we 'know' the name for this person
@@ -216,14 +252,15 @@ def detectAndTrackMultipleFaces():
                 m_w = int(t_x + t_w < BASE_SIZE_WIDTH and t_w or BASE_SIZE_WIDTH - t_x)
                 m_h = int(t_y + t_h < BASE_SIZE_HEIGHT and t_h or BASE_SIZE_HEIGHT - t_y)
 
-                face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
-                face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
-                face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
-                mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+                if(face_names[fid] == 'Unknown'):
+                    face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
+                    face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
+                    face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
+                    mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
 
 
                 if fid in faceNames.keys():
-                    cv2.putText(resultImage, faceNames[fid] , 
+                    cv2.putText(resultImage, face_names[fid] , 
                                 (int(t_x + t_w/2), int(t_y)), 
                                 cv2.FONT_HERSHEY_SIMPLEX,
                                 0.5, (255, 255, 255), 2)
@@ -232,12 +269,7 @@ def detectAndTrackMultipleFaces():
                                 (int(t_x + t_w/2), int(t_y)), 
                                 cv2.FONT_HERSHEY_SIMPLEX,
                                 0.5, (255, 255, 255), 2)
-
-
-
-
-
-
+                                
             #Since we want to show something larger on the screen than the
             #original BASE_SIZE_WIDTHxBASE_SIZE_HEIGHT, we resize the image again
             #

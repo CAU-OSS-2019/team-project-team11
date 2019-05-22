@@ -1,14 +1,6 @@
-#!/usr/bin/python
-'''
-    Author: Guido Diepen <gdiepen@deloitte.nl>
-'''
-
-# Import the OpenCV and dlib libraries
-import cv2
 import dlib
 import face_recognition
 import cv2
-import camera
 import os
 import numpy as np
 
@@ -23,7 +15,7 @@ OUTPUT_SIZE_HEIGHT = 600
 known_face_encodings = []
 known_face_names = []
 
-    # Load sample pictures and learn how to recognize it.
+# Load sample pictures and learn how to recognize it.
 dirname = 'knowns'
 files = os.listdir(dirname)
 for filename in files:
@@ -35,7 +27,7 @@ for filename in files:
         face_encoding = face_recognition.face_encodings(img)[0]
         known_face_encodings.append(face_encoding)
 
-        # Initialize some variables
+# Initialize some variables
 face_locations = []
 face_encodings = []
 face_names = []
@@ -106,6 +98,11 @@ def detectAndTrackLargestFace():
                 face_locations = face_recognition.face_locations(baseImage)
                 face_encodings = face_recognition.face_encodings(baseImage, face_locations)
 
+                # for x in face_encodings:
+                #     print(x)
+                
+                # print("=====================================")
+                
                 face_names = []
                 for face_encoding in face_encodings:
                     # See if the face is a match for the known face(s)
