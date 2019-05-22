@@ -135,7 +135,7 @@ def detectAndTrackMultipleFaces():
                 # faces = faceCascade.detectMultiScale(gray, 1.3, 5)
 
                 faces = face_recognition.face_locations(baseImage)
-                face_encodings = face_recognition.face_encodings(baseImage, faces)
+                # face_encodings = face_recognition.face_encodings(baseImage, faces)
 
                 # print(face_encodings)
 
@@ -146,7 +146,7 @@ def detectAndTrackMultipleFaces():
                 #requirement of the dlib tracker. If we omit the cast to
                 #int here, you will get cast errors since the detector
                 #returns numpy.int32 and the tracker requires an int
-                for (top, right, bottom, left), face_encoding in zip(faces, face_encodings):
+                for (top, right, bottom, left) in faces:
                     x = int(left)
                     y = int(top)
                     w = int(right - left)
@@ -205,8 +205,9 @@ def detectAndTrackMultipleFaces():
                                                             y+h+20))
 
                         faceTrackers[ currentFaceID ] = tracker
+                        face_encodings = face_recognition.face_encodings(baseImage, [(top, right, bottom, left)])
 
-                        distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                        distances = face_recognition.face_distance(known_face_encodings, face_encodings[0])
                         min_value = min(distances)
 
                         # tolerance: How much distance between faces to consider it a match. Lower is more strict.
@@ -269,7 +270,7 @@ def detectAndTrackMultipleFaces():
                                 (int(t_x + t_w/2), int(t_y)), 
                                 cv2.FONT_HERSHEY_SIMPLEX,
                                 0.5, (255, 255, 255), 2)
-                                
+
             #Since we want to show something larger on the screen than the
             #original BASE_SIZE_WIDTHxBASE_SIZE_HEIGHT, we resize the image again
             #
