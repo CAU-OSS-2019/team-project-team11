@@ -24,7 +24,6 @@ known_face_names = []
 faces_locations = []
 face_encodings = []
 face_names = {}
-process_this_frame = True
 
 # Load sample pictures and learn how to recognize it.
 dirname = 'face_recog&track/knowns'
@@ -121,10 +120,11 @@ def detectAndTrackMultipleFaces():
             for fid in fidsToDelete:
                 print("Removing fid " + str(fid) + " from list of trackers")
                 faceTrackers.pop( fid , None )
+                face_names.pop(fid, None)
 
             #Every 10 frames, we will have to determine which faces
             #are present in the frame
-            if (frameCounter % 10) == 0:
+            if (frameCounter % 5) == 0:
 
                 #For the face detection, we need to make use of a gray
                 #colored image so we will convert the baseImage to a
