@@ -64,8 +64,3 @@ layout = QtWidgets.QVBoxLayout()
 
 ## Demo
 - https://www.youtube.com/watch?v=_IUhD4zoYuI
-
-
-Contributing
-----
-Besaic에 기여하실 분들은
