@@ -7,8 +7,11 @@ Besaic는 실시간 스트리밍 환경에서 사람들의 얼굴을 자동으�
 Reference
 ----
 Face recognition : https://github.com/ageitgey/face_recognition
+
 Face tracking : https://github.com/gdiepen/face-recognition
+
 NSFW training data :  https://github.com/alexkimxyz/nsfw_data_scraper
+
 NSFW pre-trained model :  https://github.com/GantMan/nsfw_model
 
 얼굴 모자이크
