@@ -55,25 +55,3 @@ layout = QtWidgets.QVBoxLayout()
 ```
 * start button 은 모자이크 처리를 시작을 뜻함
 * NSFW button 은 이미지를 받아와서 NSFW 필터링을 
-
-
-Contributing
-----
-khaiii에 기여하실 분들은 [CONTRIBUTING](CONTRIBUTING.md) 및 [개발자를 위한 가이드](https://github.com/kakao/khaiii/wiki#%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EA%B0%80%EC%9D%B4%EB%93%9C) 문서를 참고하시기 바랍니다.
-
-
-License
-----
-This software is licensed under the [Apache 2 license](LICENSE), quoted below.
-
-Copyright 2018 Kakao Corp. <http://www.kakaocorp.com>
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not
-use this project except in compliance with the License. You may obtain a copy
-of the License at http://www.apache.org/licenses/LICENSE-2.0.
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations under
-the License.
