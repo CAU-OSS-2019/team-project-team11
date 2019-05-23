@@ -1,6 +1,4 @@
-# Open-Source S/W project - team 11
-
-모자이크(가칭)
+Open-Source S/W project team 11 - 모자이크(가칭)
 ====
 모자이크는 실시간 스트리밍 환경에서 사람들의 얼굴을 자동으로 모자이크 처리 해줍니다. 
 
