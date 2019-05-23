@@ -14,9 +14,9 @@ NSFW pre-trained model :  https://github.com/GantMan/nsfw_model
 얼굴 모자이크
 ----
 
-기계학습에 사용한 알고리즘은 신경망 알고리즘들 중에서 Convolutional Neural Network(CNN)을 사용하였습니다. 한국어에서 형태소분석은 자연어처리를 위한 가장 기본적인 전처리 과정이므로 속도가 매우 중요한 요소라고 생각합니다. 따라서 자연어처리에 많이 사용하는 Long-Short Term Memory(LSTM)와 같은 Recurrent Neural Network(RNN) 알고리즘은 속도 면에서 활용도가 떨어질 것으로 예상하여 고려 대상에서 제외하였습니다.
-
-CNN 모델에 대한 상세한 내용은 [CNN 모델](https://github.com/kakao/khaiii/wiki/CNN-%EB%AA%A8%EB%8D%B8) 문서를 참고하시기 바랍니다.
+opencv 라이브러리의 cv2.CascadeClassifier을 이용한 Face detection,
+new face일 경우 recognition을 한 뒤 known/unknown으로 분류하여 모자이크 여부를 결정한다.
+이후 dlib.correlation_trakcer()를 이용한 face tracking.
 
 NSFW
 ----
