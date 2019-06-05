@@ -131,8 +131,10 @@ def main(haar_cascade_filepath):
 
 if __name__ == '__main__':
     script_dir = path.dirname(path.realpath(__file__))
-    cascade_filepath = path.join(script_dir,
-                                 'data',
+    xmls_dir = path.join(script_dir,
+                         '..',
+                         'xmls')
+    cascade_filepath = path.join(xmls_dir,
                                  'haarcascade_frontalface_default.xml')
 
     cascade_filepath = path.abspath(cascade_filepath)
