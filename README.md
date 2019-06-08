@@ -37,6 +37,8 @@ This model powers [NSFW JS](https://github.com/infinitered/nsfwjs) - [More Info]
 ----
 ```console
 pip install cmake dlib opencv-python face_recognition numpy
+
+-dlib build 오류시 https://sulastri.tistory.com/3 해당 URL 
 ```
 
 #  Minimum UI
