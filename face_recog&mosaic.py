@@ -70,6 +70,7 @@ def detectAndTrackMultipleFaces():
     #Variables holding the correlation trackers and the name per faceid
     faceTrackers = {}
     faceNames = {}
+    frameList = []
 
     try:
         while True:
@@ -78,7 +79,13 @@ def detectAndTrackMultipleFaces():
 
             #Resize the image to BASE_SIZE_WIDTHxBASE_SIZE_HEIGHT
             baseImage = cv2.resize( fullSizeBaseImage, ( BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+            
+            frameList.append(baseImage)
+            if len(frameList) > 5 :
+                del frameList[0]
+            
 
+            print("frame %d" % frameCounter)
             #Check if a key was pressed and if it was Q, then break
             #from the infinite loop
             if cv2.waitKey(1) & 0xFF == ord('Q') :
@@ -122,7 +129,7 @@ def detectAndTrackMultipleFaces():
                 faceTrackers.pop( fid , None )
                 face_names.pop(fid, None)
 
-            #Every 10 frames, we will have to determine which faces
+            #Every 5 frames, we will have to determine which faces
             #are present in the frame
             if (frameCounter % 5) == 0:
 
@@ -254,10 +261,13 @@ def detectAndTrackMultipleFaces():
                 m_h = int(t_y + t_h < BASE_SIZE_HEIGHT and t_h or BASE_SIZE_HEIGHT - t_y)
 
                 if(face_names[fid] == 'Unknown'):
-                    face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
+                    # face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
+                    face_img = frameList[0][m_y:m_y + m_h, m_x:m_x + m_w]
                     face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
                     face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
-                    mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+                    # mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+                    frameList[0][m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+
 
 
                 if fid in faceNames.keys():
@@ -280,13 +290,16 @@ def detectAndTrackMultipleFaces():
             #at the right coordinates.
             largeResult = cv2.resize(resultImage,
                                      (OUTPUT_SIZE_WIDTH,OUTPUT_SIZE_HEIGHT))
-            mosaicResult = cv2.resize(mosaicImage,
+            # mosaicResult = cv2.resize(mosaicImage,
+            #                          (OUTPUT_SIZE_WIDTH,OUTPUT_SIZE_HEIGHT))
+            mosaicResult = cv2.resize(frameList[0],
                                      (OUTPUT_SIZE_WIDTH,OUTPUT_SIZE_HEIGHT))
 
             #Finally, we want to show the images on the screen
             cv2.imshow("base-image", baseImage)
             cv2.imshow("result-image", largeResult)
-            cv2.imshow("mosaic-image", mosaicResult)
+            if len(frameList) == 5:
+                cv2.imshow("mosaic-image", mosaicResult)
 
     #To ensure we can also deal with the user pressing Ctrl-C in the console
     #we have to check for the KeyboardInterrupt exception and break out of
