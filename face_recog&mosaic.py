@@ -5,6 +5,7 @@ import time
 import os
 import face_recognition
 import numpy as np
+import copy
 
 #Initialize a face cascade using the frontal face haar cascade provided with
 #the OpenCV library
@@ -71,6 +72,10 @@ def detectAndTrackMultipleFaces():
     faceTrackers = {}
     faceNames = {}
     frameList = []
+    top_list = []
+    bottom_list = []
+    left_list = []
+    right_list = []
 
     try:
         while True:
@@ -144,6 +149,7 @@ def detectAndTrackMultipleFaces():
                 faces = face_recognition.face_locations(baseImage)
                 # face_encodings = face_recognition.face_encodings(baseImage, faces)
 
+                # print(faceTrackers[0])
                 # print(face_encodings)
 
 
@@ -245,7 +251,7 @@ def detectAndTrackMultipleFaces():
             #the name of the person
             for fid in faceTrackers.keys():
                 tracked_position =  faceTrackers[fid].get_position()
-
+                # print(tracked_position)
                 t_x = int(tracked_position.left())
                 t_y = int(tracked_position.top())
                 t_w = int(tracked_position.width())
@@ -260,13 +266,42 @@ def detectAndTrackMultipleFaces():
                 m_w = int(t_x + t_w < BASE_SIZE_WIDTH and t_w or BASE_SIZE_WIDTH - t_x)
                 m_h = int(t_y + t_h < BASE_SIZE_HEIGHT and t_h or BASE_SIZE_HEIGHT - t_y)
 
+                top_list.append(m_y)
+                bottom_list.append(m_y + m_h)
+                left_list.append(m_x)
+                right_list.append(m_x + m_w)
+
+                
+                if len(top_list) > 5:
+                    del top_list[0]
+                    del bottom_list[0]
+                    del left_list[0]
+                    del right_list[0]
+
+                c_top_list = copy.deepcopy(top_list)
+                c_bottom_list = copy.deepcopy(bottom_list)
+                c_left_list = copy.deepcopy(left_list)
+                c_right_list = copy.deepcopy(right_list)
+
+                c_top_list.sort()
+                c_bottom_list.reverse()
+                c_left_list.sort()
+                c_right_list.reverse()
+                
+
                 if(face_names[fid] == 'Unknown'):
-                    # face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
-                    face_img = frameList[0][m_y:m_y + m_h, m_x:m_x + m_w]
-                    face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
-                    face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
-                    # mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
-                    frameList[0][m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+                    face_img = frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]]
+                    face_img = cv2.resize(face_img, ((c_right_list[0]-c_left_list[0])//MOSAIC_RATE, (c_bottom_list[0] - c_top_list[0])//MOSAIC_RATE))
+                    face_img = cv2.resize(face_img, (c_right_list[0]-c_left_list[0], c_bottom_list[0] - c_top_list[0]), interpolation=cv2.INTER_AREA)
+                    frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]] = face_img
+
+                # if(face_names[fid] == 'Unknown'):
+                #     # face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
+                #     face_img = frameList[0][m_y:m_y + m_h, m_x:m_x + m_w]
+                #     face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
+                #     face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
+                #     # mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
+                #     frameList[0][m_y:m_y + m_h, m_x:m_x + m_w] = face_img
 
 
 
