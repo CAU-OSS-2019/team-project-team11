@@ -58,12 +58,12 @@ class Assign(QDialog):
         layout.addWidget(self.take_picture)
         self.take_picture.clicked.connect(self.btn1)
         self.setLayout(layout)
-        
+
     def btn1(self):
-        dlg = App()
+        dlg = Take_pic()
         dlg.exec_()
 
-class App(QDialog):
+class Take_pic(QDialog):
     def __init__(self):
         super().__init__()
         self.title = 'PyQt5 Video'
