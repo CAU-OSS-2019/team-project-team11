@@ -13,7 +13,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
-
+import datetime
 # The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
@@ -48,6 +48,21 @@ currentFaceID = 0
 faceTrackers = {}
 faceNames = {}
 
+class Assign(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    def initUI(self):
+        layout = QtWidgets.QVBoxLayout()
+        self.take_picture = QtWidgets.QPushButton("take picture")
+        layout.addWidget(self.take_picture)
+        self.take_picture.clicked.connect(self.btn1)
+        self.setLayout(layout)
+        
+    def btn1(self):
+        dlg = App()
+        dlg.exec_()
+
 class App(QDialog):
     def __init__(self):
         super().__init__()
@@ -59,8 +74,9 @@ class App(QDialog):
         self.initUI()
         self.image
     def save_clicked(self):
-        QMessageBox.about(self, "message", "clicked")
-        cv2.imwrite('Knowns/data.jpg',self.image)
+        QMessageBox.about(self, "message", "saved")
+        suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+        cv2.imwrite('Knowns/data'+suffix+'.jpg' ,self.image)
     def initUI(self):
 
         self.setWindowTitle(self.title)
@@ -390,7 +406,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def btn1_clicked(self):
         # QMessageBox.about(self, "message", "clicked")
-        dlg = App()
+        dlg = Assign()
         dlg.exec_()
 
     def getfile(self):
