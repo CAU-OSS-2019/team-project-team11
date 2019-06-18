@@ -13,6 +13,8 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
+import datetime
+
 #The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
@@ -46,6 +48,66 @@ currentFaceID = 0
     #Variables holding the correlation trackers and the name per faceid
 faceTrackers = {}
 faceNames = {}
+
+class Assign(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    def initUI(self):
+        layout = QtWidgets.QVBoxLayout()
+        self.take_picture = QtWidgets.QPushButton("take picture")
+        layout.addWidget(self.take_picture)
+        self.take_picture.clicked.connect(self.btn1)
+        self.setLayout(layout)
+
+    def btn1(self):
+        dlg = Take_pic()
+        dlg.exec_()
+
+class Take_pic(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.title = 'PyQt5 Video'
+        self.left = 100
+        self.top = 100
+        self.width = 640
+        self.height = 480
+        self.initUI()
+        self.image
+    def save_clicked(self):
+        QMessageBox.about(self, "message", "saved")
+        suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+        cv2.imwrite('Knowns/data'+suffix+'.jpg' ,self.image)
+    def initUI(self):
+
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.resize(640, 500)
+
+        layout=QGridLayout()
+
+
+        #create a label
+        label = QLabel(self)
+        cap = cv2.VideoCapture(0)
+        ret, frame = cap.read()
+        rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        convertToQtFormat = QtGui.QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
+                                         QtGui.QImage.Format_RGB888)
+        convertToQtFormat = QtGui.QPixmap.fromImage(convertToQtFormat)
+        pixmap = QPixmap(convertToQtFormat)
+        rgbImage=cv2.cvtColor(rgbImage, cv2.COLOR_RGB2BGR)
+        cv2.resize(rgbImage, dsize =(640,480))
+        resizeImage = pixmap.scaled(640, 480, QtCore.Qt.KeepAspectRatio)
+        QApplication.processEvents()
+        label.setPixmap(resizeImage)
+        self.image=rgbImage
+        self.save_button = QPushButton("save")
+        self.save_button.clicked.connect(self.save_clicked)
+        layout.addWidget(label)
+        layout.addWidget(self.save_button)
+        self.setLayout(layout)
+
 def doRecognizePerson(faceNames, fid):
     time.sleep(2)
     faceNames[ fid ] = "Person " + str(fid)
@@ -276,6 +338,9 @@ class MainWidget(QtWidgets.QWidget):
         self.record_video.image_data.connect(image_data_slot)
 
         layout = QtWidgets.QVBoxLayout()
+        self.assign_button = QtWidgets.QPushButton("assign face")
+        layout.addWidget(self.assign_button)
+        self.assign_button.clicked.connect(self.btn1_clicked)
 
         layout.addWidget(self.face_detection_widget)
         self.run_button = QtWidgets.QPushButton('Start')
@@ -288,6 +353,12 @@ class MainWidget(QtWidgets.QWidget):
         self.btn.clicked.connect(self.getfile)
         self.run_button.clicked.connect(self.record_video.start_recording)
         self.setLayout(layout)
+
+    def btn1_clicked(self):
+        # QMessageBox.about(self, "message", "clicked")
+        dlg = Assign()
+        dlg.exec_()
+
     def getfile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 
             'c:\\',"Image files (*.jpg *.gif)")
