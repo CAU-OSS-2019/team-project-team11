@@ -14,6 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
 import datetime
+from time import sleep
 
 # The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
@@ -68,10 +69,11 @@ class Assign(QDialog):
     def btn1(self):
         dlg = Take_pic()
         dlg.exec_()
+
     def btn2(self):
-        filename=QFileDialog.getOpenFileName()
+        filename = QFileDialog.getOpenFileName()
         fname, ext = os.path.splitext(filename[0])
-        if ext=='.jpg' or ext=='.png' :
+        if ext == '.jpg' or ext == '.png':
             image = cv2.imread(filename[0])
             baseImage = cv2.resize(image, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
             faces = face_recognition.face_locations(baseImage)
@@ -79,9 +81,9 @@ class Assign(QDialog):
                 if filename[0]:
                     QMessageBox.about(self, "message", "saved")
                     suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-                    cv2.imwrite('Knowns/data'+suffix+'.jpg', image)
+                    cv2.imwrite('Knowns/data' + suffix + '.jpg', image)
             else:
-                QMessageBox.about(self,"message","unsuitable image, please take frontal face")
+                QMessageBox.about(self, "message", "unsuitable image, please take frontal face")
         else:
             QMessageBox.about(self, "message", "not a image file")
 
@@ -101,8 +103,8 @@ class Take_pic(QDialog):
         QMessageBox.about(self, "message", "saved")
         suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
         cv2.imwrite('Knowns/data' + suffix + '.jpg', self.image)
-        known_face_names =[]
-        known_face_encodings =[]
+        known_face_names = []
+        known_face_encodings = []
         dirname = 'knowns'
         files = os.listdir(dirname)
         for filename in files:
@@ -115,6 +117,7 @@ class Take_pic(QDialog):
                 known_face_encodings.append(face_encoding)
 
     def initUI(self):
+
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.resize(640, 500)
@@ -147,6 +150,7 @@ def doRecognizePerson(faceNames, fid):
     time.sleep(2)
     faceNames[fid] = "Person " + str(fid)
 
+
 class RecordVideo(QtCore.QObject):
     image_data = QtCore.pyqtSignal(np.ndarray)
 
@@ -169,13 +173,9 @@ class RecordVideo(QtCore.QObject):
 
 
 class FaceDetectionWidget(QtWidgets.QWidget):
-    def __init__(self, haar_cascade_filepath, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.classifier = cv2.CascadeClassifier(haar_cascade_filepath)
         self.image = QtGui.QImage()
-        self._red = (0, 0, 255)
-        self._width = 2
-        self._min_size = (30, 30)
 
     def detect_faces(self, image: np.ndarray):
         # haarclassifiers work better in black and white
@@ -274,7 +274,6 @@ class FaceDetectionWidget(QtWidgets.QWidget):
 
                     faceTrackers[currentFaceID] = tracker
                     face_encodings = face_recognition.face_encodings(baseImage, [(top, right, bottom, left)])
-
                     distances = face_recognition.face_distance(known_face_encodings, face_encodings[0])
                     min_value = min(distances)
 
@@ -360,10 +359,9 @@ class FaceDetectionWidget(QtWidgets.QWidget):
 
 
 class MainWidget(QtWidgets.QWidget):
-    def __init__(self, haarcascade_filepath, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        fp = haarcascade_filepath
-        self.face_detection_widget = FaceDetectionWidget(fp)
+        self.face_detection_widget = FaceDetectionWidget()
 
         # TODO: set video port
         self.record_video = RecordVideo()
@@ -399,11 +397,11 @@ class MainWidget(QtWidgets.QWidget):
         self.le.setPixmap(QPixmap(fname[0]))
 
 
-def main(haar_cascade_filepath):
+def main():
     app = QtWidgets.QApplication(sys.argv)
 
     main_window = QtWidgets.QMainWindow()
-    main_widget = MainWidget(haar_cascade_filepath)
+    main_widget = MainWidget()
     main_window.setCentralWidget(main_widget)
     main_window.show()
     sys.exit(app.exec_())
@@ -411,9 +409,5 @@ def main(haar_cascade_filepath):
 
 if __name__ == '__main__':
     script_dir = path.dirname(path.realpath(__file__))
-    cascade_filepath = path.join(script_dir,
-                                 'data',
-                                 'haarcascade_frontalface_default.xml')
 
-    cascade_filepath = path.abspath(cascade_filepath)
-    main(cascade_filepath)
+    main()
