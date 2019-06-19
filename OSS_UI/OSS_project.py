@@ -118,9 +118,9 @@ class Take_pic(QDialog):
     def save_clicked(self):
         QMessageBox.about(self, "message", "saved")
         suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        cv2.imwrite('Knowns/data'+suffix+'.jpg', self.image)
-        known_face_names = []
-        known_face_encodings = []
+        cv2.imwrite('Knowns/data'+suffix+'.jpg' ,self.image)
+        known_face_names =[]
+        known_face_encodings =[]
         dirname = 'knowns'
         files = os.listdir(dirname)
         for filename in files:
@@ -426,4 +426,3 @@ if __name__ == '__main__':
     script_dir = path.dirname(path.realpath(__file__))
 
     main()
-    
