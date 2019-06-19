@@ -81,6 +81,18 @@ class Assign(QDialog):
                     QMessageBox.about(self, "message", "saved")
                     suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
                     cv2.imwrite('Knowns/data' + suffix + '.jpg', image)
+                    known_face_names = []
+                    known_face_encodings = []
+                    dirname = 'knowns'
+                    files = os.listdir(dirname)
+                    for filename in files:
+                        name, ext = os.path.splitext(filename)
+                        if ext == '.jpg':
+                            known_face_names.append(name)
+                            pathname = os.path.join(dirname, filename)
+                            img = face_recognition.load_image_file(pathname)
+                            face_encoding = face_recognition.face_encodings(img)[0]
+                            known_face_encodings.append(face_encoding)
             else:
                 QMessageBox.about(self, "message", "unsuitable image, please take frontal face")
         else:
@@ -101,19 +113,26 @@ class Take_pic(QDialog):
     def save_clicked(self):
         QMessageBox.about(self, "message", "saved")
         suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        cv2.imwrite('Knowns/data'+suffix+'.jpg' ,self.image)
-        known_face_names =[]
-        known_face_encodings =[]
-        dirname = 'knowns'
-        files = os.listdir(dirname)
-        for filename in files:
-            name, ext = os.path.splitext(filename)
-            if ext == '.jpg':
-                known_face_names.append(name)
-                pathname = os.path.join(dirname, filename)
-                img = face_recognition.load_image_file(pathname)
-                face_encoding = face_recognition.face_encodings(img)[0]
-                known_face_encodings.append(face_encoding)
+        faces= face_recognition.face_locations(self.image)
+        if faces:
+            cv2.imwrite('Knowns/data'+suffix+'.jpg' ,self.image)
+            QMessageBox.about(self, "message", "saved")
+            known_face_names =[]
+            known_face_encodings =[]
+            dirname = 'knowns'
+            files = os.listdir(dirname)
+            for filename in files:
+                name, ext = os.path.splitext(filename)
+                if ext == '.jpg':
+                    known_face_names.append(name)
+                    pathname = os.path.join(dirname, filename)
+                    img = face_recognition.load_image_file(pathname)
+                    face_encoding = face_recognition.face_encodings(img)[0]
+                    known_face_encodings.append(face_encoding)
+
+        else :
+            QMessageBox.about(self, "message", "unsuitable image, please take frontal face")
+
     def initUI(self):
 
         self.setWindowTitle(self.title)
