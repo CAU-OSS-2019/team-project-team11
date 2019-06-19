@@ -62,11 +62,29 @@ class Assign(QDialog):
         self.take_file = QtWidgets.QPushButton("take image file")
         layout.addWidget(self.take_file)
         self.take_file.clicked.connect(self.btn2)
+        self.take_file = QtWidgets.QPushButton("take image file")
+        layout.addWidget(self.take_file)
+        self.take_file.clicked.connect(self.btn2)
         self.setLayout(layout)
 
     def btn1(self):
         dlg = Take_pic()
         dlg.exec_()
+    def btn2(self):
+        filename=QFileDialog.getOpenFileName()
+        fname, ext = os.path.splitext(filename[0])
+        if ext=='.jpg' or ext=='.png' :
+            image = cv2.imread(filename[0])
+            baseImage = cv2.resize(image, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+            faces = face_recognition.face_locations(baseImage)
+            if faces:
+                if filename[0]:
+                    QMessageBox.about(self, "message", "saved")
+                    cv2.imwrite('Knowns/data.jpg', image)
+            else:
+                QMessageBox.about(self,"message","unsuitable image, please take frontal face")
+        else:
+            QMessageBox.about(self, "message", "not a image file")
 
     def btn2(self):
         filename = QFileDialog.getOpenFileName()
