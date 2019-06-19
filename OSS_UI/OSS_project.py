@@ -16,7 +16,7 @@ from PyQt5.QtGui import QPixmap
 import datetime
 from time import sleep
 
-# The deisred output width and height
+#The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
 MOSAIC_RATE = 10
@@ -40,22 +40,20 @@ for filename in files:
         img = face_recognition.load_image_file(pathname)
         face_encoding = face_recognition.face_encodings(img)[0]
         known_face_encodings.append(face_encoding)
-rectangleColor = (0, 165, 255)
+rectangleColor = (0,165,255)
 
-# variables holding the current frame number and the current faceid
+    # variables holding the current frame number and the current faceid
 frameCounter = 0
 currentFaceID = 0
 
-# Variables holding the correlation trackers and the name per faceid
+    # Variables holding the correlation trackers and the name per faceid
 faceTrackers = {}
 faceNames = {}
-
 
 class Assign(QDialog):
     def __init__(self):
         super().__init__()
         self.initUI()
-
     def initUI(self):
         layout = QtWidgets.QVBoxLayout()
         self.take_picture = QtWidgets.QPushButton("take picture")
@@ -102,7 +100,7 @@ class Take_pic(QDialog):
     def save_clicked(self):
         QMessageBox.about(self, "message", "saved")
         suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        cv2.imwrite('Knowns/data' + suffix + '.jpg', self.image)
+        cv2.imwrite('Knowns/data'+suffix+'.jpg', self.image)
         known_face_names = []
         known_face_encodings = []
         dirname = 'knowns'
@@ -115,16 +113,15 @@ class Take_pic(QDialog):
                 img = face_recognition.load_image_file(pathname)
                 face_encoding = face_recognition.face_encodings(img)[0]
                 known_face_encodings.append(face_encoding)
-
     def initUI(self):
 
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.resize(640, 500)
 
-        layout = QGridLayout()
+        layout=QGridLayout()
 
-        # create a label
+        #create a label
         label = QLabel(self)
         cap = cv2.VideoCapture(0)
         ret, frame = cap.read()
@@ -133,22 +130,21 @@ class Take_pic(QDialog):
                                          QtGui.QImage.Format_RGB888)
         convertToQtFormat = QtGui.QPixmap.fromImage(convertToQtFormat)
         pixmap = QPixmap(convertToQtFormat)
-        rgbImage = cv2.cvtColor(rgbImage, cv2.COLOR_RGB2BGR)
-        cv2.resize(rgbImage, dsize=(640, 480))
+        rgbImage=cv2.cvtColor(rgbImage, cv2.COLOR_RGB2BGR)
+        cv2.resize(rgbImage, dsize =(640, 480))
         resizeImage = pixmap.scaled(640, 480, QtCore.Qt.KeepAspectRatio)
         QApplication.processEvents()
         label.setPixmap(resizeImage)
-        self.image = rgbImage
+        self.image=rgbImage
         self.save_button = QPushButton("save")
         self.save_button.clicked.connect(self.save_clicked)
         layout.addWidget(label)
         layout.addWidget(self.save_button)
         self.setLayout(layout)
 
-
 def doRecognizePerson(faceNames, fid):
     time.sleep(2)
-    faceNames[fid] = "Person " + str(fid)
+    faceNames[ fid ] = "Person " + str(fid)
 
 
 class RecordVideo(QtCore.QObject):
@@ -191,120 +187,122 @@ class FaceDetectionWidget(QtWidgets.QWidget):
         return faces
 
     def image_data_slot(self, image_data):
-        baseImage = cv2.resize(image_data, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+        baseImage = cv2.resize( image_data, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
         mosaicImage = baseImage.copy()
-        # Increase the framecounter
+            # Increase the framecounter
         global frameCounter
         frameCounter += 1
-        # Update all the trackers and remove the ones for which the update
-        # indicated the quality was not good enough
+            # Update all the trackers and remove the ones for which the update
+            # indicated the quality was not good enough
         fidsToDelete = []
         for fid in faceTrackers.keys():
             trackingQuality = faceTrackers[fid].update(baseImage)
-            # If the tracking quality is good enough, we must delete
-            # this tracker
+                # If the tracking quality is good enough, we must delete
+                # this tracker
             if trackingQuality < 5:
-                fidsToDelete.append(fid)
+                fidsToDelete.append( fid )
         for fid in fidsToDelete:
             print("Removing fid " + str(fid) + " from list of trackers")
-            faceTrackers.pop(fid, None)
+            faceTrackers.pop( fid , None)
             face_names.pop(fid, None)
-            # Every 10 frames, we will have to determine which faces
-            # are present in the frame
+            #Every 10 frames, we will have to determine which faces
+            #are present in the frame
         if (frameCounter % 5) == 0:
-            # Now use the haar cascade detector to find all faces
-            # in the image
+                # Now use the haar cascade detector to find all faces
+                # in the image
             faces = face_recognition.face_locations(baseImage)
-            # Loop over all faces and check if the area for this
-            # face is the largest so far
-            # We need to convert it to int here because of the
-            # requirement of the dlib tracker. If we omit the cast to
-            # int here, you will get cast errors since the detector
-            # returns numpy.int32 and the tracker requires an int
+                # Loop over all faces and check if the area for this
+                # face is the largest so far
+                # We need to convert it to int here because of the
+                # requirement of the dlib tracker. If we omit the cast to
+                # int here, you will get cast errors since the detector
+                # returns numpy.int32 and the tracker requires an int
             for (top, right, bottom, left) in faces:
                 x = int(left)
                 y = int(top)
                 w = int(right - left)
                 h = int(bottom - top)
-                # calculate the centerpoint
+                    # calculate the centerpoint
                 x_bar = x + 0.5 * w
                 y_bar = y + 0.5 * h
-                # Variable holding information which faceid we
-                # matched with
+                    # Variable holding information which faceid we
+                    # matched with
                 matchedFid = None
-                # Now loop over all the trackers and check if the
-                # centerpoint of the face is within the box of a
-                # tracker
+                    # Now loop over all the trackers and check if the
+                    # centerpoint of the face is within the box of a
+                    # tracker
                 for fid in faceTrackers.keys():
-                    tracked_position = faceTrackers[fid].get_position()
+                    tracked_position =  faceTrackers[fid].get_position()
 
                     t_x = int(tracked_position.left())
                     t_y = int(tracked_position.top())
                     t_w = int(tracked_position.width())
                     t_h = int(tracked_position.height())
 
-                    # calculate the centerpoint
+
+                        # calculate the centerpoint
                     t_x_bar = t_x + 0.5 * t_w
                     t_y_bar = t_y + 0.5 * t_h
 
-                    # check if the centerpoint of the face is within the
-                    # rectangleof a tracker region. Also, the centerpoint
-                    # of the tracker region must be within the region
-                    # detected as a face. If both of these conditions hold
-                    # we have a match
-                    if ((t_x <= x_bar <= (t_x + t_w)) and
-                            (t_y <= y_bar <= (t_y + t_h)) and
-                            (x <= t_x_bar <= (x + w)) and
-                            (y <= t_y_bar <= (y + h))):
+                        # check if the centerpoint of the face is within the
+                        # rectangleof a tracker region. Also, the centerpoint
+                        # of the tracker region must be within the region
+                        # detected as a face. If both of these conditions hold
+                        # we have a match
+                    if ( ( t_x <= x_bar   <= (t_x + t_w)) and
+                         ( t_y <= y_bar   <= (t_y + t_h)) and
+                         ( x   <= t_x_bar <= (x   + w  )) and
+                         ( y   <= t_y_bar <= (y   + h  ))):
                         matchedFid = fid
 
-                    # If no matched fid, then we have to create a new tracker
+
+                        # If no matched fid, then we have to create a new tracker
                 global currentFaceID
                 if matchedFid is None:
 
                     print("Creating new tracker " + str(currentFaceID))
 
-                    # Create and store the tracker
+                        # Create and store the tracker
                     tracker = dlib.correlation_tracker()
                     tracker.start_track(baseImage,
-                                        dlib.rectangle(x - 10,
-                                                       y - 20,
-                                                       x + w + 10,
-                                                       y + h + 20))
+                                        dlib.rectangle( x-10,
+                                                        y-20,
+                                                        x+w+10,
+                                                        y+h+20))
 
-                    faceTrackers[currentFaceID] = tracker
+                    faceTrackers[ currentFaceID ] = tracker
                     face_encodings = face_recognition.face_encodings(baseImage, [(top, right, bottom, left)])
                     distances = face_recognition.face_distance(known_face_encodings, face_encodings[0])
                     min_value = min(distances)
 
-                    # tolerance: How much distance between faces to consider it a match. Lower is more strict.
-                    # 0.6 is typical best performance.
+                        # tolerance: How much distance between faces to consider it a match. Lower is more strict.
+                        # 0.6 is typical best performance.
                     name = "Unknown"
                     if min_value < 0.4:
                         index = np.argmin(distances)
                         name = known_face_names[index]
 
-                    face_names[currentFaceID] = name
+                    face_names[ currentFaceID ] = name
 
                     print(face_names)
 
-                    # Start a new thread that is used to simulate
-                    # face recognition. This is not yet implemented in this
-                    # version :)
-                    t = threading.Thread(target=doRecognizePerson,
+                        # Start a new thread that is used to simulate
+                        # face recognition. This is not yet implemented in this
+                        # version :)
+                    t = threading.Thread( target = doRecognizePerson ,
                                          args=(faceNames, currentFaceID))
                     t.start()
 
-                    # Increase the currentFaceID counter
+                        # Increase the currentFaceID counter
                     currentFaceID += 1
 
-            # Now loop over all the trackers we have and draw the rectangle
-            # around the detected faces. If we 'know' the name for this person
-            # (i.e. the recognition thread is finished), we print the name
-            # of the person, otherwise the message indicating we are detecting
-            # the name of the person
+            #Now loop over all the trackers we have and draw the rectangle
+            #around the detected faces. If we 'know' the name for this person
+            #(i.e. the recognition thread is finished), we print the name
+            #of the person, otherwise the message indicating we are detecting
+            #the name of the person
         for fid in faceTrackers.keys():
-            tracked_position = faceTrackers[fid].get_position()
+            tracked_position =  faceTrackers[fid].get_position()
 
             t_x = int(tracked_position.left())
             t_y = int(tracked_position.top())
@@ -316,21 +314,21 @@ class FaceDetectionWidget(QtWidgets.QWidget):
             m_w = int(t_x + t_w < BASE_SIZE_WIDTH and t_w or BASE_SIZE_WIDTH - t_x)
             m_h = int(t_y + t_h < BASE_SIZE_HEIGHT and t_h or BASE_SIZE_HEIGHT - t_y)
 
-            if (face_names[fid] == 'Unknown'):
+            if(face_names[fid] == 'Unknown'):
                 face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
-                face_img = cv2.resize(face_img, (m_w // MOSAIC_RATE, m_h // MOSAIC_RATE))
+                face_img = cv2.resize(face_img, (m_w //MOSAIC_RATE, m_h//MOSAIC_RATE))
                 face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
                 mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
 
-            # Since we want to show something larger on the screen than the
-            # original BASE_SIZE_WIDTHxBASE_SIZE_HEIGHT, we resize the image again
+            #Since we want to show something larger on the screen than the
+            #original BASE_SIZE_WIDTHxBASE_SIZE_HEIGHT, we resize the image again
             #
-            # Note that it would also be possible to keep the large version
-            # of the baseimage and make the result image a copy of this large
-            # base image and use the scaling factor to draw the rectangle
-            # at the right coordinates.
+            #Note that it would also be possible to keep the large version
+            #of the baseimage and make the result image a copy of this large
+            #base image and use the scaling factor to draw the rectangle
+            #at the right coordinates.
         mosaicResult = cv2.resize(mosaicImage,
-                                  (OUTPUT_SIZE_WIDTH, OUTPUT_SIZE_HEIGHT))
+                                 (OUTPUT_SIZE_WIDTH,OUTPUT_SIZE_HEIGHT))
 
         self.image = self.get_qimage(mosaicResult)
         if self.image.size() != self.size():
@@ -393,9 +391,8 @@ class MainWidget(QtWidgets.QWidget):
 
     def getfile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file',
-                                            'c:\\', "Image files (*.jpg *.gif)")
+                                            'c:\\',"Image files (*.jpg *.gif)")
         self.le.setPixmap(QPixmap(fname[0]))
-
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
@@ -411,3 +408,4 @@ if __name__ == '__main__':
     script_dir = path.dirname(path.realpath(__file__))
 
     main()
+    
