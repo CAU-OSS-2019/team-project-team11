@@ -49,6 +49,9 @@ pip install cmake dlib opencv-python face_recognition numpy
 2. Code preview
 ```python
 layout = QtWidgets.QVBoxLayout()
+        self.assign_button = QtWidgets.QPushButton("assign face")
+        layout.addWidget(self.assign_button)
+        self.assign_button.clicked.connect(self.btn1_clicked)
 
         layout.addWidget(self.face_detection_widget)
         self.run_button = QtWidgets.QPushButton('Start')
@@ -56,14 +59,15 @@ layout = QtWidgets.QVBoxLayout()
         self.btn = QPushButton("NSFW")
         layout.addWidget(self.btn)
         self.le = QLabel("")
-
+        
         layout.addWidget(self.le)
         self.btn.clicked.connect(self.getfile)
         self.run_button.clicked.connect(self.record_video.start_recording)
         self.setLayout(layout)
 ```
-* start button 은 모자이크 처리를 시작을 뜻함
-* NSFW button 은 이미지를 받아와서 NSFW 필터링을
+* start button 은 모자이크 처리를 시작을 뜻함. 웹캠을 받아와서 모자이크 처리를 진행
+* NSFW button 은 이미지를 받아와서 NSFW 필터링을 진행
+* assign face button 은 이미지를 새로 추가할 수 있도록 진행
 
 ## Usage
 <<<<<<< HEAD
