@@ -78,7 +78,8 @@ class Assign(QDialog):
             if faces:
                 if filename[0]:
                     QMessageBox.about(self, "message", "saved")
-                    cv2.imwrite('Knowns/data.jpg', image)
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    cv2.imwrite('Knowns/data'+suffix+'.jpg', image)
             else:
                 QMessageBox.about(self,"message","unsuitable image, please take frontal face")
         else:
