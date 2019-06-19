@@ -42,11 +42,11 @@ for filename in files:
         known_face_encodings.append(face_encoding)
 rectangleColor = (0,165,255)
 
-    #variables holding the current frame number and the current faceid
+    # variables holding the current frame number and the current faceid
 frameCounter = 0
 currentFaceID = 0
 
-    #Variables holding the correlation trackers and the name per faceid
+    # Variables holding the correlation trackers and the name per faceid
 faceTrackers = {}
 faceNames = {}
 
@@ -59,11 +59,50 @@ class Assign(QDialog):
         self.take_picture = QtWidgets.QPushButton("take picture")
         layout.addWidget(self.take_picture)
         self.take_picture.clicked.connect(self.btn1)
+        self.take_file = QtWidgets.QPushButton("take image file")
+        layout.addWidget(self.take_file)
+        self.take_file.clicked.connect(self.btn2)
+        self.take_file = QtWidgets.QPushButton("take image file")
+        layout.addWidget(self.take_file)
+        self.take_file.clicked.connect(self.btn2)
         self.setLayout(layout)
 
     def btn1(self):
         dlg = Take_pic()
         dlg.exec_()
+    def btn2(self):
+        filename=QFileDialog.getOpenFileName()
+        fname, ext = os.path.splitext(filename[0])
+        if ext=='.jpg' or ext=='.png' :
+            image = cv2.imread(filename[0])
+            baseImage = cv2.resize(image, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+            faces = face_recognition.face_locations(baseImage)
+            if faces:
+                if filename[0]:
+                    QMessageBox.about(self, "message", "saved")
+                    cv2.imwrite('Knowns/data.jpg', image)
+            else:
+                QMessageBox.about(self,"message","unsuitable image, please take frontal face")
+        else:
+            QMessageBox.about(self, "message", "not a image file")
+
+    def btn2(self):
+        filename = QFileDialog.getOpenFileName()
+        fname, ext = os.path.splitext(filename[0])
+        if ext == '.jpg' or ext == '.png':
+            image = cv2.imread(filename[0])
+            baseImage = cv2.resize(image, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+            faces = face_recognition.face_locations(baseImage)
+            if faces:
+                if filename[0]:
+                    QMessageBox.about(self, "message", "saved")
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    cv2.imwrite('Knowns/data' + suffix + '.jpg', image)
+            else:
+                QMessageBox.about(self, "message", "unsuitable image, please take frontal face")
+        else:
+            QMessageBox.about(self, "message", "not a image file")
+
 
 class Take_pic(QDialog):
     def __init__(self):
@@ -75,6 +114,7 @@ class Take_pic(QDialog):
         self.height = 480
         self.initUI()
         self.image
+
     def save_clicked(self):
         QMessageBox.about(self, "message", "saved")
         suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -99,7 +139,6 @@ class Take_pic(QDialog):
 
         layout=QGridLayout()
 
-
         #create a label
         label = QLabel(self)
         cap = cv2.VideoCapture(0)
@@ -110,7 +149,7 @@ class Take_pic(QDialog):
         convertToQtFormat = QtGui.QPixmap.fromImage(convertToQtFormat)
         pixmap = QPixmap(convertToQtFormat)
         rgbImage=cv2.cvtColor(rgbImage, cv2.COLOR_RGB2BGR)
-        cv2.resize(rgbImage, dsize =(640,480))
+        cv2.resize(rgbImage, dsize =(640, 480))
         resizeImage = pixmap.scaled(640, 480, QtCore.Qt.KeepAspectRatio)
         QApplication.processEvents()
         label.setPixmap(resizeImage)
@@ -124,6 +163,8 @@ class Take_pic(QDialog):
 def doRecognizePerson(faceNames, fid):
     time.sleep(2)
     faceNames[ fid ] = "Person " + str(fid)
+
+
 class RecordVideo(QtCore.QObject):
     image_data = QtCore.pyqtSignal(np.ndarray)
 
@@ -164,50 +205,50 @@ class FaceDetectionWidget(QtWidgets.QWidget):
         return faces
 
     def image_data_slot(self, image_data):
-        baseImage = cv2.resize( image_data, ( BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
+        baseImage = cv2.resize( image_data, (BASE_SIZE_WIDTH, BASE_SIZE_HEIGHT))
         mosaicImage = baseImage.copy()
-            #Increase the framecounter
+            # Increase the framecounter
         global frameCounter
-        frameCounter += 1 
-            #Update all the trackers and remove the ones for which the update
-            #indicated the quality was not good enough
+        frameCounter += 1
+            # Update all the trackers and remove the ones for which the update
+            # indicated the quality was not good enough
         fidsToDelete = []
         for fid in faceTrackers.keys():
-            trackingQuality = faceTrackers[ fid ].update( baseImage )
-                #If the tracking quality is good enough, we must delete
-                #this tracker
+            trackingQuality = faceTrackers[fid].update(baseImage)
+                # If the tracking quality is good enough, we must delete
+                # this tracker
             if trackingQuality < 5:
                 fidsToDelete.append( fid )
         for fid in fidsToDelete:
             print("Removing fid " + str(fid) + " from list of trackers")
-            faceTrackers.pop( fid , None )
+            faceTrackers.pop( fid , None)
             face_names.pop(fid, None)
             #Every 10 frames, we will have to determine which faces
             #are present in the frame
         if (frameCounter % 5) == 0:
-                #Now use the haar cascade detector to find all faces
-                #in the image
+                # Now use the haar cascade detector to find all faces
+                # in the image
             faces = face_recognition.face_locations(baseImage)
-                #Loop over all faces and check if the area for this
-                #face is the largest so far
-                #We need to convert it to int here because of the
-                #requirement of the dlib tracker. If we omit the cast to
-                #int here, you will get cast errors since the detector
-                #returns numpy.int32 and the tracker requires an int
+                # Loop over all faces and check if the area for this
+                # face is the largest so far
+                # We need to convert it to int here because of the
+                # requirement of the dlib tracker. If we omit the cast to
+                # int here, you will get cast errors since the detector
+                # returns numpy.int32 and the tracker requires an int
             for (top, right, bottom, left) in faces:
                 x = int(left)
                 y = int(top)
                 w = int(right - left)
                 h = int(bottom - top)
-                    #calculate the centerpoint
+                    # calculate the centerpoint
                 x_bar = x + 0.5 * w
                 y_bar = y + 0.5 * h
-                    #Variable holding information which faceid we 
-                    #matched with
+                    # Variable holding information which faceid we
+                    # matched with
                 matchedFid = None
-                    #Now loop over all the trackers and check if the 
-                    #centerpoint of the face is within the box of a 
-                    #tracker
+                    # Now loop over all the trackers and check if the
+                    # centerpoint of the face is within the box of a
+                    # tracker
                 for fid in faceTrackers.keys():
                     tracked_position =  faceTrackers[fid].get_position()
 
@@ -217,29 +258,29 @@ class FaceDetectionWidget(QtWidgets.QWidget):
                     t_h = int(tracked_position.height())
 
 
-                        #calculate the centerpoint
+                        # calculate the centerpoint
                     t_x_bar = t_x + 0.5 * t_w
                     t_y_bar = t_y + 0.5 * t_h
 
-                        #check if the centerpoint of the face is within the 
-                        #rectangleof a tracker region. Also, the centerpoint
-                        #of the tracker region must be within the region 
-                        #detected as a face. If both of these conditions hold
-                        #we have a match
-                    if ( ( t_x <= x_bar   <= (t_x + t_w)) and 
-                         ( t_y <= y_bar   <= (t_y + t_h)) and 
-                         ( x   <= t_x_bar <= (x   + w  )) and 
+                        # check if the centerpoint of the face is within the
+                        # rectangleof a tracker region. Also, the centerpoint
+                        # of the tracker region must be within the region
+                        # detected as a face. If both of these conditions hold
+                        # we have a match
+                    if ( ( t_x <= x_bar   <= (t_x + t_w)) and
+                         ( t_y <= y_bar   <= (t_y + t_h)) and
+                         ( x   <= t_x_bar <= (x   + w  )) and
                          ( y   <= t_y_bar <= (y   + h  ))):
                         matchedFid = fid
 
 
-                    #If no matched fid, then we have to create a new tracker
+                        # If no matched fid, then we have to create a new tracker
                 global currentFaceID
                 if matchedFid is None:
 
                     print("Creating new tracker " + str(currentFaceID))
 
-                        #Create and store the tracker 
+                        # Create and store the tracker
                     tracker = dlib.correlation_tracker()
                     tracker.start_track(baseImage,
                                         dlib.rectangle( x-10,
@@ -263,14 +304,14 @@ class FaceDetectionWidget(QtWidgets.QWidget):
 
                     print(face_names)
 
-                        #Start a new thread that is used to simulate 
-                        #face recognition. This is not yet implemented in this
-                        #version :)
+                        # Start a new thread that is used to simulate
+                        # face recognition. This is not yet implemented in this
+                        # version :)
                     t = threading.Thread( target = doRecognizePerson ,
-                                               args=(faceNames, currentFaceID))
+                                         args=(faceNames, currentFaceID))
                     t.start()
 
-                        #Increase the currentFaceID counter
+                        # Increase the currentFaceID counter
                     currentFaceID += 1
 
             #Now loop over all the trackers we have and draw the rectangle
@@ -293,7 +334,7 @@ class FaceDetectionWidget(QtWidgets.QWidget):
 
             if(face_names[fid] == 'Unknown'):
                 face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
-                face_img = cv2.resize(face_img, (m_w//MOSAIC_RATE, m_h//MOSAIC_RATE))
+                face_img = cv2.resize(face_img, (m_w //MOSAIC_RATE, m_h//MOSAIC_RATE))
                 face_img = cv2.resize(face_img, (m_w, m_h), interpolation=cv2.INTER_AREA)
                 mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w] = face_img
 
@@ -355,7 +396,7 @@ class MainWidget(QtWidgets.QWidget):
         self.btn = QPushButton("NSFW")
         layout.addWidget(self.btn)
         self.le = QLabel("")
-        
+
         layout.addWidget(self.le)
         self.btn.clicked.connect(self.getfile)
         self.run_button.clicked.connect(self.record_video.start_recording)
@@ -367,8 +408,8 @@ class MainWidget(QtWidgets.QWidget):
         dlg.exec_()
 
     def getfile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', 
-            'c:\\',"Image files (*.jpg *.gif)")
+        fname = QFileDialog.getOpenFileName(self, 'Open file',
+                                            'c:\\',"Image files (*.jpg *.gif)")
         self.le.setPixmap(QPixmap(fname[0]))
 
 def main():
