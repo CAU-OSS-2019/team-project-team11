@@ -70,13 +70,10 @@ layout = QtWidgets.QVBoxLayout()
 * assign face button 은 이미지를 새로 추가할 수 있도록 진행
 
 ## Usage
-<<<<<<< HEAD
-```python face_recog&mosaic.py
-=======
 ```python
+python face_recog&mosaic.py
 from nsfw_detector import NSFWDetector
 detector = NSFWDetector('./nsfw.299x299.h5')
->>>>>>> master
 ```
 
 ## Demo
