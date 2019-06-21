@@ -6,6 +6,21 @@ import os
 import face_recognition
 import numpy as np
 import copy
+import argparse
+
+parser = argparse.ArgumentParser(description='how to use argunments')
+
+parser.add_argument('--mosaic', required=False, default='unknown', help='누구를 모자이크할지 (unknown or known)')
+
+args = parser.parse_args()
+
+if (args.mosaic == 'unknown'):
+    print("Mosaic unknown people...")
+elif (args.mosaic == 'known') : 
+    print("Mosaic known people...")
+else :
+    print("argumnet Error : argument --mosaic should be known or unknown. (Default is unknown)")
+    quit()
 
 #Initialize a face cascade using the frontal face haar cascade provided with
 #the OpenCV library
@@ -90,7 +105,7 @@ def detectAndTrackMultipleFaces():
                 del frameList[0]
             
 
-            print("frame %d" % frameCounter)
+            # print("frame %d" % frameCounter)
             #Check if a key was pressed and if it was Q, then break
             #from the infinite loop
             if cv2.waitKey(1) & 0xFF == ord('Q') :
@@ -288,12 +303,18 @@ def detectAndTrackMultipleFaces():
                 c_left_list.sort()
                 c_right_list.reverse()
                 
-
-                if(face_names[fid] == 'Unknown'):
-                    face_img = frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]]
-                    face_img = cv2.resize(face_img, ((c_right_list[0]-c_left_list[0])//MOSAIC_RATE, (c_bottom_list[0] - c_top_list[0])//MOSAIC_RATE))
-                    face_img = cv2.resize(face_img, (c_right_list[0]-c_left_list[0], c_bottom_list[0] - c_top_list[0]), interpolation=cv2.INTER_AREA)
-                    frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]] = face_img
+                if(args.mosaic != 'unknown'):
+                    if(face_names[fid] != 'Unknown'):
+                        face_img = frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]]
+                        face_img = cv2.resize(face_img, ((c_right_list[0]-c_left_list[0])//MOSAIC_RATE, (c_bottom_list[0] - c_top_list[0])//MOSAIC_RATE))
+                        face_img = cv2.resize(face_img, (c_right_list[0]-c_left_list[0], c_bottom_list[0] - c_top_list[0]), interpolation=cv2.INTER_AREA)
+                        frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]] = face_img
+                else :
+                    if(face_names[fid] == 'Unknown'):
+                        face_img = frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]]
+                        face_img = cv2.resize(face_img, ((c_right_list[0]-c_left_list[0])//MOSAIC_RATE, (c_bottom_list[0] - c_top_list[0])//MOSAIC_RATE))
+                        face_img = cv2.resize(face_img, (c_right_list[0]-c_left_list[0], c_bottom_list[0] - c_top_list[0]), interpolation=cv2.INTER_AREA)
+                        frameList[0][c_top_list[0]:c_bottom_list[0], c_left_list[0]:c_right_list[0]] = face_img
 
                 # if(face_names[fid] == 'Unknown'):
                 #     # face_img = mosaicImage[m_y:m_y + m_h, m_x:m_x + m_w]
