@@ -69,12 +69,22 @@ layout = QtWidgets.QVBoxLayout()
 * NSFW button 은 이미지를 받아와서 NSFW 필터링을 진행
 * assign face button 은 이미지를 새로 추가할 수 있도록 진행
 
+3. Develop Environment Setting in a Linux
+settingforlinux.sh
+
 ## Usage
 ```python
 python face_recog&mosaic.py
 from nsfw_detector import NSFWDetector
 detector = NSFWDetector('./nsfw.299x299.h5')
 ```
+
+```For linux
+After cloning repo and entering the repo.
+./makeexecutionfileforlinux.sh
+./executeapp.sh
+```
+
 
 ## Demo
 - https://www.youtube.com/watch?v=_IUhD4zoYuI
